@@ -1,0 +1,27 @@
+name: DualPlayerData
+version: '${project.version}'
+main: me.benjamin.dualplayerdata.DualPlayerData
+api-version: '1.20'
+author: Benjamin
+description: Dual UUID playerdata sync + offline password protection for Velocity online/offline proxies
+commands:
+  login:
+    description: Login with your offline protection password
+    usage: /login <password>
+  register:
+    description: Register a new offline protection password
+    usage: /register <password> <confirm>
+  changedatapass:
+    description: Change your offline protection password
+    usage: /changedatapass <old> <new> <confirm>
+  datasync:
+    description: Manually sync dual UUID data (requires password or OP)
+    usage: /datasync <player> <online-to-offline|offline-to-online> [password]
+  datasyncadmin:
+    description: Admin commands for DualPlayerData
+    usage: /datasyncadmin <importlegacyplayers|resetpass> [player]
+    permission: dualplayerdata.admin
+permissions:
+  dualplayerdata.admin:
+    description: Allows use of /datasyncadmin
+    default: op
