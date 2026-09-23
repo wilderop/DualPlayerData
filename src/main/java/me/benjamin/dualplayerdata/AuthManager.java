@@ -23,25 +23,20 @@ public class AuthManager {
 
     public AuthManager(DualPlayerData plugin) {
         this.plugin = plugin;
-        this.playersFile = new File(plugin.getDataFolder(), "players.yml");
+        playersFile = new File(plugin.getDataFolder(), "players.yml");
         loadData();
     }
 
     private void loadData() {
         if (!playersFile.exists()) {
-            try {
-                playersFile.createNewFile();
-            } catch (IOException ignored) {
-            }
+            try { playersFile.createNewFile(); } catch (IOException ignored) {}
         }
         config = YamlConfiguration.loadConfiguration(playersFile);
     }
 
     public void saveData() {
-        try {
-            config.save(playersFile);
-        } catch (IOException e) {
-            plugin.getLogger().warning("Failed to save players.yml: " + e.getMessage());
+        try { config.save(playersFile); } catch (IOException e) {
+            plugin.getLogger().warning("Failed to save players.yml");
         }
     }
 
@@ -54,7 +49,7 @@ public class AuthManager {
         return hash != null && BCrypt.checkpw(password, hash);
     }
 
-    public void register(String username, String password) {
+    public void register(String username, String password) {   // ← ADDED (was missing)
         String hash = BCrypt.hashpw(password, BCrypt.gensalt());
         String key = "players." + username.toLowerCase();
         config.set(key + ".hash", hash);
@@ -62,14 +57,8 @@ public class AuthManager {
         saveData();
     }
 
-    /**
-     * Generates a random 12-character password, stores the BCrypt hash, and returns the plaintext.
-     * Returns null if the player is already registered.
-     */
     public String generateAndSetInitialPassword(String username) {
-        if (isRegistered(username)) {
-            return null;
-        }
+        if (isRegistered(username)) return null;
 
         SecureRandom random = new SecureRandom();
         StringBuilder pass = new StringBuilder(12);

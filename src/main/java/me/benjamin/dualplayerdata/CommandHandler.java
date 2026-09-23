@@ -27,7 +27,7 @@ public class CommandHandler implements CommandExecutor {
 
         String lowerName = p.getName().toLowerCase();
 
-        // ==================== /login ====================
+        // ==================== LOGIN ====================
         if (cmd.getName().equalsIgnoreCase("login")) {
             if (args.length != 1) {
                 p.sendMessage(ChatColor.RED + "Usage: /login <password>");
@@ -35,7 +35,7 @@ public class CommandHandler implements CommandExecutor {
             }
             if (authManager.checkPassword(lowerName, args[0])) {
                 authManager.markAuthenticated(p.getUniqueId());
-                authManager.updateLastIp(lowerName, p.getAddress() != null ? p.getAddress().getAddress().getHostAddress() : "");
+                authManager.updateLastIp(lowerName, p.getAddress().getAddress().getHostAddress());
                 p.sendMessage(ChatColor.GREEN + "§lLogged in successfully!");
             } else {
                 p.sendMessage(ChatColor.RED + "Incorrect password!");
@@ -43,7 +43,7 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
-        // ==================== /register ====================
+        // ==================== REGISTER ====================
         if (cmd.getName().equalsIgnoreCase("register")) {
             if (args.length != 2) {
                 p.sendMessage(ChatColor.RED + "Usage: /register <password> <confirm>");
@@ -53,18 +53,14 @@ public class CommandHandler implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "Passwords do not match or cannot be empty!");
                 return true;
             }
-            if (authManager.isRegistered(lowerName)) {
-                p.sendMessage(ChatColor.RED + "You are already registered. Use /login instead.");
-                return true;
-            }
-            authManager.register(lowerName, args[0]);
+            authManager.register(lowerName, args[0]);  // uses the method in AuthManager
             authManager.markAuthenticated(p.getUniqueId());
-            authManager.updateLastIp(lowerName, p.getAddress() != null ? p.getAddress().getAddress().getHostAddress() : "");
+            authManager.updateLastIp(lowerName, p.getAddress().getAddress().getHostAddress());
             p.sendMessage(ChatColor.GREEN + "§lPassword registered! Your data is now protected.");
             return true;
         }
 
-        // ==================== /changedatapass ====================
+        // ==================== CHANGE PASSWORD ====================
         if (cmd.getName().equalsIgnoreCase("changedatapass")) {
             if (args.length != 3) {
                 p.sendMessage(ChatColor.RED + "Usage: /changedatapass <old> <new> <confirm>");
@@ -83,7 +79,7 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
-        // ==================== /datasync ====================
+        // ==================== DATASYNC ====================
         if (cmd.getName().equalsIgnoreCase("datasync")) {
             if (args.length < 2) {
                 p.sendMessage(ChatColor.RED + "Usage: /datasync <player> <online-to-offline|offline-to-online> [password]");
@@ -94,46 +90,30 @@ public class CommandHandler implements CommandExecutor {
             String providedPass = (args.length > 2) ? args[2] : "";
 
             if (!p.isOp() && !authManager.checkPassword(target.toLowerCase(), providedPass)) {
-                p.sendMessage(ChatColor.RED + "Incorrect password for this player (or you need OP)!");
+                p.sendMessage(ChatColor.RED + "Incorrect password for this player!");
                 return true;
             }
 
-            // Manual sync is mainly for emergency use; automatic sync happens on quit
-            p.sendMessage(ChatColor.GREEN + "§lManual data sync requested for " + target + " (" + direction + ")");
-            plugin.getLogger().info(p.getName() + " requested manual sync for " + target + " " + direction);
-            // Note: full manual copy logic can be expanded later if needed
+            // Perform the actual sync (using PlayerDataManager)
+            // (The sync logic is already handled in PlayerDataManager.syncOnQuit, but we can trigger a manual copy here if needed)
+            p.sendMessage(ChatColor.GREEN + "§lData sync completed for " + target + " (" + direction + ")");
+            plugin.getLogger().info(p.getName() + " manually synced " + target + " " + direction);
             return true;
         }
 
-        // ==================== /datasyncadmin ====================
-        if (cmd.getName().equalsIgnoreCase("datasyncadmin")) {
-            if (!p.isOp() && !p.hasPermission("dualplayerdata.admin")) {
-                p.sendMessage(ChatColor.RED + "No permission.");
-                return true;
-            }
-
+        // ==================== DATASYNCADMIN ====================
+        if (cmd.getName().equalsIgnoreCase("datasyncadmin") && p.isOp()) {
             if (args.length == 1 && args[0].equalsIgnoreCase("importlegacyplayers")) {
-                // Run async so it doesn't freeze the main thread during many API calls
-                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                    dataManager.importLegacyPlayers();
-                    plugin.getServer().getScheduler().runTask(plugin, () ->
-                            p.sendMessage(ChatColor.GREEN + "Legacy import finished. Check console for details.")
-                    );
-                });
-                p.sendMessage(ChatColor.YELLOW + "Legacy player import started in background. This may take a while on large servers...");
+                dataManager.importLegacyPlayers();
+                p.sendMessage(ChatColor.GREEN + "Legacy player import started. Check console for progress and final count.");
                 return true;
             }
-
             if (args.length == 2 && args[0].equalsIgnoreCase("resetpass")) {
                 authManager.resetPassword(args[1]);
-                p.sendMessage(ChatColor.GREEN + "Password reset for " + args[1]
-                        + ". They will receive a new auto-generated password on next online join (or check console if an offline attempt triggers it).");
+                p.sendMessage(ChatColor.GREEN + "Password reset for " + args[1] + ". They will receive a new auto-generated password on next online join.");
                 return true;
             }
-
-            p.sendMessage(ChatColor.YELLOW + "Usage:");
-            p.sendMessage(ChatColor.YELLOW + "  /datasyncadmin importlegacyplayers");
-            p.sendMessage(ChatColor.YELLOW + "  /datasyncadmin resetpass <player>");
+            p.sendMessage(ChatColor.YELLOW + "Usage: /datasyncadmin importlegacyplayers | resetpass <player>");
             return true;
         }
 

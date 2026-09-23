@@ -6,14 +6,15 @@
 
     <groupId>me.benjamin</groupId>
     <artifactId>DualPlayerData</artifactId>
-    <version>1.2.0</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
 
     <name>DualPlayerData</name>
-    <description>Dual UUID playerdata sync + offline password protection for Velocity online/offline proxies</description>
+    <description>Dual UUID sync + offline password protection (IP session bypass)</description>
 
     <properties>
-        <java.version>17</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -28,7 +29,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.20.4-R0.1-SNAPSHOT</version>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -39,16 +40,7 @@
     </dependencies>
 
     <build>
-        <finalName>DualPlayerData</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-                <configuration>
-                    <release>${java.version}</release>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -56,27 +48,10 @@
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.mindrot.jbcrypt</pattern>
-                                    <shadedPattern>me.benjamin.dualplayerdata.lib.jbcrypt</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <minimizeJar>false</minimizeJar>
-                        </configuration>
+                        <goals><goal>shade</goal></goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
 </project>
