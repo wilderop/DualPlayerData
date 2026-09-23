@@ -1,3 +1,8 @@
+<!-- azpbmd-live -->
+**Live:** not installed
+
+No live server loads it.
+<!-- /azpbmd-live -->
 # DualPlayerData
 
 Paper plugin for servers behind Velocity that need to support **both online-mode and offline-mode proxies** while keeping playerdata, advancements, and stats in sync between the two UUID types.
